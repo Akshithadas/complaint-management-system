@@ -4,12 +4,27 @@
     {
       "src": "app.py",
       "use": "@vercel/python"
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
     }
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/complaints(.*)",
       "dest": "app.py"
+    },
+    {
+      "src": "/admin(.*)",
+      "dest": "app.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
     }
   ]
-}
+}

@@ -4,12 +4,25 @@ from models import db, Complaint
 from flask_cors import CORS
 from google import genai
 import json
+import os
 
 app = Flask(__name__)
 CORS(app)
 app.config.from_object('config')
 db.init_app(app)
-client = genai.Client(api_key=GEMINI_API_KEY)
+
+with app.app_context():
+    try:
+        db.create_all()
+    except Exception as e:
+        print("Database initialization note:", e)
+
+client = None
+if GEMINI_API_KEY:
+    try:
+        client = genai.Client(api_key=GEMINI_API_KEY)
+    except Exception as e:
+        print("Gemini client initialization error:", e)
 
 @app.route('/')
 def home():
@@ -125,7 +138,15 @@ def add_complaint_ai():
     """
 
     try:
-        response = client.models.generate_content(
+        current_client = client
+        if not current_client:
+            api_key = os.environ.get('GEMINI_API_KEY', GEMINI_API_KEY)
+            if api_key:
+                current_client = genai.Client(api_key=api_key)
+            else:
+                return jsonify({"error": "GEMINI_API_KEY environment variable is not configured"}), 500
+
+        response = current_client.models.generate_content(
             model='gemini-2.5-flash',
             contents=prompt
         )
@@ -159,6 +180,4 @@ def add_complaint_ai():
         return jsonify({"error": f"AI processing failed: {str(e)}"}), 500
 
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)

@@ -9,9 +9,9 @@ function App() {
       <nav>
         <h1>Complaint Management System</h1>
         <div className="nav-links">
-          <button onClick={() => setPage('register')}>Register Complaint</button>
-          <button onClick={() => setPage('track')}>Track Complaint</button>
-          <button onClick={() => setPage('admin')}>Admin Panel</button>
+          <button className={page === 'register' ? 'active' : ''} onClick={() => setPage('register')}>Register Complaint</button>
+          <button className={page === 'track' ? 'active' : ''} onClick={() => setPage('track')}>Track Complaint</button>
+          <button className={page === 'admin' ? 'active' : ''} onClick={() => setPage('admin')}>Admin Panel</button>
         </div>
       </nav>
 
@@ -47,7 +47,7 @@ function RegisterComplaint() {
 
   const handleSubmit = async () => {
     try {
-      const res = await fetch('http://localhost:5000/complaints', {
+      const res = await fetch('/complaints', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form)
@@ -94,7 +94,7 @@ function TrackComplaint() {
 
   const handleTrack = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/complaints/${id}`)
+      const res = await fetch(`/complaints/${id}`)
       const data = await res.json()
       if (res.ok) {
         setComplaint(data)
@@ -134,15 +134,15 @@ function AdminPanel() {
 
   const loadComplaints = async () => {
     const url = filter
-      ? `http://localhost:5000/admin/complaints?status=${filter}`
-      : 'http://localhost:5000/admin/complaints'
+      ? `/admin/complaints?status=${filter}`
+      : '/admin/complaints'
     const res = await fetch(url)
     const data = await res.json()
     setComplaints(data)
   }
 
   const updateStatus = async (id, status) => {
-    await fetch(`http://localhost:5000/admin/complaints/${id}/status`, {
+    await fetch(`/admin/complaints/${id}/status`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status })
@@ -151,7 +151,7 @@ function AdminPanel() {
   }
 
   const updatePriority = async (id, priority) => {
-    await fetch(`http://localhost:5000/admin/complaints/${id}/priority`, {
+    await fetch(`/admin/complaints/${id}/priority`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ priority })
